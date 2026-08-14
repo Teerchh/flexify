@@ -14,7 +14,7 @@ export default function TrendingCard({ movie, index, onClick }: TrendingCardProp
     return (
         <li>
             <p>{index}</p>
-            <div className="relative z-10">
+            <div className="relative z-10 shrink-0">
                 <button
                     type="button"
                     onClick={onClick}

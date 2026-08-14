@@ -30,7 +30,7 @@ export default function HomePage() {
                         type="button"
                         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                         aria-label="Movie App home — back to top"
-                        className="block cursor-pointer"
+                        className="block w-full cursor-pointer"
                     >
                         <img src="hero.png" alt="Hero Banner" />
                     </button>

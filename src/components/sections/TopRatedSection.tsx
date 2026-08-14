@@ -1,6 +1,8 @@
 import ErrorState from "../ErrorState";
+import ScrollArrows from "../ScrollArrows";
 import { PosterSkeleton } from "../Skeleton";
 import TrendingCard from "../TrendingCard";
+import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
 import useTrending from "@/hooks/useTrending";
 import type { Movie } from "@/types/movie";
 
@@ -10,6 +12,7 @@ type TopRatedSectionProps = {
 
 export default function TopRatedSection({ onSelect }: TopRatedSectionProps) {
     const { data, isPending, error, refetch } = useTrending();
+    const { ref, canLeft, canRight, scrollLeft, scrollRight } = useHorizontalScroll<HTMLUListElement>();
 
     return (
         <section className="trending">
@@ -24,16 +27,19 @@ export default function TopRatedSection({ onSelect }: TopRatedSectionProps) {
             ) : error ? (
                 <ErrorState message={error.message} onRetry={() => refetch()} />
             ) : (
-                <ul>
-                    {data?.map((movie, index) => (
-                        <TrendingCard
-                            key={movie.id}
-                            movie={movie}
-                            index={index + 1}
-                            onClick={() => onSelect(movie)}
-                        />
-                    ))}
-                </ul>
+                <div className="relative">
+                    <ul ref={ref}>
+                        {data?.map((movie, index) => (
+                            <TrendingCard
+                                key={movie.id}
+                                movie={movie}
+                                index={index + 1}
+                                onClick={() => onSelect(movie)}
+                            />
+                        ))}
+                    </ul>
+                    <ScrollArrows canLeft={canLeft} canRight={canRight} onLeft={scrollLeft} onRight={scrollRight} />
+                </div>
             )}
         </section>
     );
