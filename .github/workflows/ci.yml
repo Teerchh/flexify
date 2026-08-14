@@ -1,0 +1,82 @@
+name: CI/CD
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+
+jobs:
+    build-and-check:
+        name: Build + checks (Docker)
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            # Builds the Docker image. The final `runtime` stage (nginx) depends
+            # on the `build` stage, which runs `pnpm lint && pnpm test && pnpm build`
+            # inside the container — so one build verifies the checks AND produces
+            # the exact artifact that ships.
+            - name: Build Docker image & run checks
+              run: docker build -t movieapp:ci .
+
+            # Boot the image and confirm it serves the frontend — like an actual
+            # deployment. No API key needed: the app shell (incl. the
+            # <title>Movie App</title>) renders before TMDB calls resolve.
+            - name: Smoke test (container boots and serves the frontend)
+              run: |
+                  docker run -d --name movieapp-smoke -p 3001:80 movieapp:ci
+                  sleep 4
+                  curl -sf http://localhost:3001/ | grep -q "Movie App" && echo "OK: container serves the frontend"
+                  docker rm -f movieapp-smoke
+
+    e2e:
+        name: Playwright e2e
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: pnpm/action-setup@v4
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 24
+                  cache: pnpm
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Install Playwright browsers
+              run: pnpm exec playwright install --with-deps chromium
+
+            - name: Run e2e tests
+              run: pnpm e2e
+              env:
+                  VITE_TMDB_API_KEY: ${{ secrets.VITE_TMDB_API_KEY }}
+                  VITE_API_URL: https://api.themoviedb.org/3
+
+    deploy-vercel:
+        name: Deploy to Vercel (production)
+        needs: [build-and-check, e2e]
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: pnpm/action-setup@v4
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 24
+                  cache: pnpm
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            # Requires GitHub secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID.
+            - name: "Deploy to Vercel (production)"
+              env:
+                  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+                  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+                  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+              run: npx vercel --prod --yes --token=$VERCEL_TOKEN

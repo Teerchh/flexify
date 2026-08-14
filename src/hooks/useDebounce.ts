@@ -1,39 +1,19 @@
-// import { useEffect, useState } from "react";
-
-// function useDebounce<T>(value: T, delay: number = 1000): T {
-//     const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
-//     useEffect(() => {
-//         const handler = setTimeout(() => {
-//             setDebouncedValue(value);
-//         }, delay);
-
-//         return () => {
-//             clearTimeout(handler);
-//         };
-//     }, [value, delay]);
-
-//     return debouncedValue;
-// }
-
-// export default useDebounce;
-
 import { useEffect, useState } from "react";
 
-function useDebounce<T>(fn: () => T, delay: number = 1000): T | undefined {
-    const [result, setResult] = useState<T>();
+function useDebounce<T>(value: T, delay: number = 500): T {
+    const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
     useEffect(() => {
         const handler = setTimeout(() => {
-            setResult(fn());
+            setDebouncedValue(value);
         }, delay);
 
         return () => {
             clearTimeout(handler);
         };
-    }, [fn, delay]);
+    }, [value, delay]);
 
-    return result;
+    return debouncedValue;
 }
 
 export default useDebounce;

@@ -1,0 +1,24 @@
+# Dependencies & build output
+node_modules
+dist
+dist-ssr
+coverage
+
+# Never ship env files into the image (they may contain the TMDB key)
+.env
+.env.*
+
+# VCS / editor / tooling
+.git
+.github
+.vscode
+.idea
+
+# Test artifacts
+e2e
+playwright-report
+test-results
+
+# Logs & temp
+*.log
+*.txt

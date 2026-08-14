@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#D6C7FF"/>
+      <stop offset="100%" stop-color="#AB8BFF"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded tile background -->
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#0f0d23" stroke="#545270" stroke-width="2"/>
+
+  <!-- Clapperboard body -->
+  <rect x="12" y="30" width="40" height="24" rx="3" fill="url(#grad)"/>
+
+  <!-- Angled clapper top -->
+  <path d="M12 16 L52 16 L44 30 L12 30 Z" fill="url(#grad)"/>
+
+  <!-- Diagonal stripes on the top -->
+  <path d="M22 16 L28 16 L20 30 L14 30 Z" fill="#0f0d23"/>
+  <path d="M36 16 L42 16 L34 30 L28 30 Z" fill="#0f0d23"/>
+
+  <!-- Binding rings on the left of the board -->
+  <circle cx="17" cy="37" r="1.4" fill="#0f0d23"/>
+  <circle cx="17" cy="43" r="1.4" fill="#0f0d23"/>
+  <circle cx="17" cy="49" r="1.4" fill="#0f0d23"/>
+</svg>

@@ -1,16 +1,36 @@
-import type { Movie } from "@/App";
+import FavoriteButton from "./FavoriteButton";
+import { posterSrcSet, posterUrl } from "@/libs/images";
+import type { Movie } from "@/types/movie";
 
-export default function TrendingCard({ movie: { poster_path }, index }: { movie: Movie, index: number }) {
+export type TrendingCardProps = {
+    movie: Movie;
+    index: number;
+    onClick?: () => void;
+};
+
+export default function TrendingCard({ movie, index, onClick }: TrendingCardProps) {
+    const { poster_path, title } = movie;
+
     return (
         <li>
             <p>{index}</p>
-            <img
-                src={poster_path ?
-                    `https://image.tmdb.org/t/p/w500/${poster_path}`
-                    : "no-movie.png"}
-                alt="movie poster"
-                className="z-10"
-            />
+            <div className="relative z-10">
+                <button
+                    type="button"
+                    onClick={onClick}
+                    aria-label={`${title} poster`}
+                    className="cursor-pointer"
+                >
+                    <img
+                        src={posterUrl(poster_path)}
+                        srcSet={posterSrcSet(poster_path)}
+                        sizes="(min-width: 640px) 127px, 127px"
+                        alt=""
+                        loading="lazy"
+                    />
+                </button>
+                <FavoriteButton movie={movie} className="absolute right-1 top-1" size={18} />
+            </div>
         </li>
     )
 }

@@ -1,30 +1,35 @@
-import type { Movie } from "@/App";
+import type { SortBy } from "@/constants/genres";
 import httpClient from "@/libs/axios.lib";
+import type { MovieResponse } from "@/types/api";
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 
-export type MovieResponse = {
-    page: number;
-    results: Movie[];
-    total_pages: number;
-    total_results: number;
+type UsePopularOptions = {
+    genres?: number[];
+    sortBy?: SortBy;
 };
 
-export default function usePopular() {
+/** Discover/popular movies with optional genre + sort filters (infinite scroll). */
+export default function usePopular({ genres = [], sortBy = "popularity.desc" }: UsePopularOptions = {}) {
     return useInfiniteQuery({
-        queryKey: ['popular movies'],
-        queryFn: async ({ pageParam }) => await fetchPopular({ pageParam }),
+        queryKey: ['popular movies', genres, sortBy],
+        queryFn: async ({ pageParam }) => {
+            const response = await httpClient.get<MovieResponse>("/discover/movie", {
+                params: {
+                    language: "en-US",
+                    page: pageParam,
+                    sort_by: sortBy,
+                    with_genres: genres.length > 0 ? genres.join(",") : undefined,
+                },
+            });
+            return response.data;
+        },
         initialPageParam: 1,
         getNextPageParam: (lastPage) => {
             if (lastPage.page < lastPage.total_pages) {
-                return lastPage.page + 1
+                return lastPage.page + 1;
             }
-            return undefined
+            return undefined;
         },
         placeholderData: keepPreviousData,
-    })
-}
-
-async function fetchPopular({ pageParam }: { pageParam: number }): Promise<MovieResponse> {
-    const response = await httpClient.get(`/discover/movie?language=en-US&page=${pageParam}&sort_by=popularity.desc`);
-    return response.data;
+    });
 }
